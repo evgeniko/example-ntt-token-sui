@@ -6,8 +6,8 @@ module my_coin_pkg::my_coin {
 
     fun init(witness: MY_COIN, ctx: &mut sui::tx_context::TxContext) {
         let decimals: u8 = 9;
-        let symbol = b"BVB";
-        let name = b"Borussia";
+        let symbol = b"WSV";
+        let name = b"Wuppertaler SV";
         let description = b"";
         let icon = option::some(url::new_unsafe_from_bytes(b"https://example.com/icon.png"));
         let (treasury, metadata) = coin::create_currency<MY_COIN>(
@@ -15,7 +15,7 @@ module my_coin_pkg::my_coin {
         );
         let sender = ctx.sender();
         sui::transfer::public_transfer(treasury, sender);
-        sui::transfer::public_transfer(metadata, sender);
+        sui::transfer::public_share_object(metadata);
     }
 
     public fun mint(
