@@ -34,7 +34,7 @@ sui client active-address
 sui client switch --address YOUR_GENERATED_ADDRESS
 ```
 
-### 6. Get Test Tokens
+### 6. Get Test Coins
 ```bash
 sui client faucet
 ```
@@ -49,18 +49,18 @@ Before deploying, you can modify the coin properties in `sources/my_coin.move`:
 ### **Coin Properties:**
 ```move
 let decimals: u8 = 9;                    // Number of decimal places
-let symbol = b"MYC";                     // Token symbol (3-4 characters)
-let name = b"My Coin";                   // Token name
-let description = b"";                    // Token description
+let symbol = b"MYC";                     // Coin symbol (3-4 characters)
+let name = b"My Coin";                   // Coin name
+let description = b"";                    // Coin description
 let icon = option::some(url::new_unsafe_from_bytes(b"https://example.com/icon.png"));
 ```
 
 ### **What to Change:**
 - **`decimals`**: Change from `9` to your preferred precision (e.g., `6` for 6 decimals)
-- **`symbol`**: Change `"MYC"` to your token symbol (e.g., `"BTC"`, `"ETH"`)
-- **`name`**: Change `"My Coin"` to your token name (e.g., `"Bitcoin"`, `"Ethereum"`)
-- **`description`**: Add a description for your token
-- **`icon`**: Change the URL to your token's icon image
+- **`symbol`**: Change `"MYC"` to your coin symbol (e.g., `"BTC"`, `"ETH"`)
+- **`name`**: Change `"My Coin"` to your coin name (e.g., `"Bitcoin"`, `"Ethereum"`)
+- **`description`**: Add a description for your coin
+- **`icon`**: Change the URL to your coin's icon image
 
 ### 8. Build the Project
 ```bash
@@ -87,13 +87,13 @@ sui client objects
 
 **This command shows:**
 - **UpgradeCap**: Look for `0x0000..0002::package::UpgradeCap` (for package upgrades)
-- **Coin Metadata**: Look for `0x0000..0002::coin::CoinMetadata` (your token metadata)
+- **Coin Metadata**: Look for `0x0000..0002::coin::CoinMetadata` (your coin metadata)
 - **TreasuryCap**: Look for `0x0000..0002::coin::TreasuryCap` (for minting/burning)
 
 **Find the TreasuryCap ID here - you'll need it for the minting step!**
 
 
-### 11. Mint MY_COIN Tokens
+### 11. Mint MY_COIN Coins
 ```bash
     sui client call
         --package YOUR_DEPLOYED_PACKAGE_ID_STEP10 
@@ -120,9 +120,9 @@ sui client balance --coin-type YOUR_PACKAGE_ID::MODULE_NAME::MY_COIN
 ```
 
 **Balance Command Explained:**
-- **`--coin-type`**: The full type identifier for your MY_COIN token
+- **`--coin-type`**: The full type identifier for your MY_COIN coin
 - **Format**: `YOUR_PACKAGE_ID::MODULE_NAME::MY_COIN` (replace with actual values from step 9)
-- **Shows**: Balance of MY_COIN tokens for the currently active address
+- **Shows**: Balance of MY_COIN coins for the currently active address
 - **Format**: Amount in smallest units (divide by 10^9 to get actual MY_COIN amount)
 
 
@@ -135,10 +135,39 @@ Throughout this README, you'll see placeholder values that need to be replaced w
 - **`YOUR_DEPLOYED_PACKAGE_ID_STEP9`**: The package ID from step 9 deployment output
 - **`MODULE_NAME`**: Your module name (default: `my_coin`)
 - **`TREASURYCAP_ID_STEP9`**: The TreasuryCap ID from step 9 deployment output
-- **`RECIPIENT_ADDRESS`**: The address to receive minted tokens
-- **`AMOUNT_WITH_DECIMALS`**: Amount in smallest units (e.g., `1000000000` for 1 token with 9 decimals)
+- **`RECIPIENT_ADDRESS`**: The address to receive minted coins
+- **`AMOUNT_WITH_DECIMALS`**: Amount in smallest units (e.g., `1000000000` for 1 coin with 9 decimals)
 
 ## Project Structure
 
 - `Move.toml` - Project configuration and dependencies
 - `sources/my_coin.move` - Main Move module containing the coin implementation
+
+## Update Coin Metadata
+
+After deploying your coin, you can update its metadata using the Sui CLI. You'll need your `TreasuryCap` and `CoinMetadata` object IDs from step 10.
+
+### Update Coin Name
+```bash
+sui client call \
+    --package 0x0000000000000000000000000000000000000000000000000000000000000002 \
+    --module coin \
+    --function update_name \
+    --type-args <PACKAGE_ID::MODULE::COIN> \
+    --args TREASURY_CAP_ID COIN_METADATA_ID "New Name" \
+    --gas-budget 10000000
+```
+
+**Command Arguments Explained:**
+- **`--module`**: Use `coin` (the Sui framework module)
+- **`--function`**: The update function (`update_name`)
+- **`--type-args`**: Your coin type in format `PACKAGE_ID::my_coin::MY_COIN`
+- **`--args`**: Three arguments:
+  1. **TreasuryCap ID**: Your treasury capability object ID
+  2. **CoinMetadata ID**: Your coin metadata object ID
+  3. **New Name**: The new coin name
+- **`--gas-budget`**: Maximum gas to spend 
+
+**Note**: You can only update metadata if you own the `TreasuryCap` object. 
+
+For more details on updating metadata of your Coin, see the [Sui Coin Framework Documentation](https://docs.sui.io/references/framework/sui/coin#sui_coin_update_name).
